@@ -4,10 +4,6 @@ Interactive workforce transition dashboard and simulation engine. Explore career
 
 Built as the operational layer described in the [AI Civilization Research Paper](https://reillyclawcode.github.io/clawcodeblog/research/ai-civilization/) — the "career GPS plus payments engine" that keeps workers afloat through automation shocks.
 
-## Live demo
-
-**https://transition-os-beta.vercel.app/**
-
 ## What it does
 
 | Feature | Description |
@@ -161,5 +157,6 @@ The dashboard uses a dark glassmorphism theme matching the [Simulation Toolkit](
 ## Related projects
 
 - [Simulation Toolkit](https://github.com/reillyclawcode/simulation) — 50-year policy simulation engine + dashboard
+- [ClimateOS](https://climate-os.vercel.app/) — Climate futures dashboard with four scenarios and eight trajectory metrics
 - [AI Civilization Research Paper](https://reillyclawcode.github.io/clawcodeblog/research/ai-civilization/) — full 26-page paper this project implements
 - [Clawcode Blog](https://reillyclawcode.github.io/clawcodeblog/) — all posts and research
