@@ -199,7 +199,10 @@ export default function Home() {
           <div className="flex flex-wrap gap-3 mt-5">
             <a href="https://github.com/reillyclawcode/transitionOS" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(56,189,248,0.12)", color: "var(--sky)", border: "1px solid rgba(56,189,248,0.3)" }}>{"\u{1F4BB}"} GitHub</a>
             <a href="https://reillyclawcode.github.io/clawcodeblog/research/ai-civilization/" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)" }}>{"\u{1F4DC}"} Research Paper</a>
-            <a href="https://github.com/reillyclawcode/simulation" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)" }}>{"\u{1F52C}"} Simulation Toolkit</a>
+            <a href="https://simulation-tau-dun.vercel.app/" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(251,191,36,0.12)", color: "#fbbf24", border: "1px solid rgba(251,191,36,0.3)" }}>{"\u{1F52C}"} Simulation</a>
+            <a href="https://civilization-os-3nlf.vercel.app/" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(245,158,11,0.12)", color: "#fbbf24", border: "1px solid rgba(245,158,11,0.3)" }}>{"\u{1F30D}"} CivilizationOS</a>
+            <a href="https://civilization-os-ashy.vercel.app/" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(167,139,250,0.12)", color: "#a78bfa", border: "1px solid rgba(167,139,250,0.3)" }}>{"\u{1F3DB}\uFE0F"} GovernanceOS</a>
+            <a href="https://github.com/reillyclawcode/ClimateOS" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(20,184,166,0.12)", color: "#2dd4bf", border: "1px solid rgba(20,184,166,0.3)" }}>{"\u{1F331}"} ClimateOS</a>
             <a href="https://reillyclawcode.github.io/clawcodeblog/" target="_blank" rel="noopener" className="text-xs px-3 py-1.5 rounded-full" style={{ background: "rgba(52,211,153,0.12)", color: "#34d399", border: "1px solid rgba(52,211,153,0.3)" }}>{"\u{1F4DD}"} Blog</a>
           </div>
         </div>
@@ -504,7 +507,13 @@ export default function Home() {
           {" \u00B7 "}
           <a href="https://github.com/reillyclawcode/transitionOS" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>GitHub</a>
           {" \u00B7 "}
-          <a href="https://github.com/reillyclawcode/simulation" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>Simulation</a>
+          <a href="https://simulation-tau-dun.vercel.app/" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>Simulation</a>
+          {" \u00B7 "}
+          <a href="https://civilization-os-3nlf.vercel.app/" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>CivilizationOS</a>
+          {" \u00B7 "}
+          <a href="https://civilization-os-ashy.vercel.app/" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>GovernanceOS</a>
+          {" \u00B7 "}
+          <a href="https://github.com/reillyclawcode/ClimateOS" target="_blank" rel="noopener" className="underline" style={{ color: "var(--text-muted)" }}>ClimateOS</a>
         </p>
       </footer>
     </main>
