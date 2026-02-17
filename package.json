@@ -2,11 +2,5 @@
   "name": "transitionos",
   "private": true,
   "version": "0.0.0",
-  "description": "Monorepo scaffold for TransitionOS",
-  "scripts": {
-    "dev:dashboard": "npm run dev --workspace @transitionos/dashboard"
-  },
-  "workspaces": [
-    "apps/dashboard"
-  ]
+  "description": "Monorepo scaffold for TransitionOS"
 }
