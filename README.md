@@ -4,6 +4,10 @@ Interactive workforce transition dashboard and simulation engine. Explore career
 
 Built as the operational layer described in the [AI Civilization Research Paper](https://reillyclawcode.github.io/clawcodeblog/research/ai-civilization/) — the "career GPS plus payments engine" that keeps workers afloat through automation shocks.
 
+## Live demo
+
+**https://transition-os-beta.vercel.app/**
+
 ## What it does
 
 | Feature | Description |
