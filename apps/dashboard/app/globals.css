@@ -41,9 +41,23 @@ body::before {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
   border-radius: 16px;
-  backdrop-filter: blur(12px);
   box-shadow: 0 4px 30px rgba(0,0,0,0.15);
   transition: border-color 0.2s, transform 0.2s;
+}
+
+/* Enable backdrop blur only on devices that can handle it (not mobile) */
+@media (min-width: 768px) {
+  .glass-card {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* Slightly more opaque background on mobile to compensate for no blur */
+@media (max-width: 767px) {
+  .glass-card {
+    background: rgba(15, 23, 42, 0.95);
+  }
 }
 .glass-card:hover { border-color: var(--card-hover); }
 .glass-card-interactive:hover { transform: translateY(-2px); border-color: var(--accent); }
