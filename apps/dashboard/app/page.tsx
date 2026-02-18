@@ -136,6 +136,7 @@ export default function Home() {
   const [cohortMetric, setCohortMetric] = useState("poverty_rate");
   const [cohortYear, setCohortYear] = useState(2035);
   const [occFilter, setOccFilter] = useState("all");
+  const [activeScenario, setActiveScenario] = useState("full_stack");
 
   useEffect(() => {
     fetch("/data/seed.json").then(r => r.json()).then(setData).catch(console.error);
@@ -222,49 +223,145 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 mt-8">
 
         {/* ═══ OVERVIEW ═══ */}
-        {tab === "overview" && (
+        {tab === "overview" && (() => {
+          const sc = data.cohort.find(c => c.scenario === activeScenario) || data.cohort[0];
+          const scColor = SC_COLORS[activeScenario] || "#64748b";
+
+          const transScores = [
+            { domain: "Employment", score: 58, trend: "stable" as const, icon: "\u{1F4BC}", color: "#38bdf8", note: `${occupations.length} occupations tracked, ${atRiskCount} at risk` },
+            { domain: "Reskilling", score: 35, trend: "improving" as const, icon: "\u{1F393}", color: "#a78bfa", note: "Avg risk " + pct(avgRisk * 100) + ", pathways insufficient" },
+            { domain: "Income Security", score: 42, trend: "declining" as const, icon: "\u{1F4B0}", color: "#10b981", note: `${fmtK(totalWorkers)} workers, safety nets strained` },
+            { domain: "Equity", score: 38, trend: "declining" as const, icon: "\u2696\uFE0F", color: "#f59e0b", note: "Automation hitting lower-income jobs hardest" },
+          ];
+          const overallScore = Math.round(transScores.reduce((a, c) => a + c.score, 0) / transScores.length);
+          const letterGrade = (s: number) => s >= 93 ? "A" : s >= 85 ? "A-" : s >= 80 ? "B+" : s >= 73 ? "B" : s >= 68 ? "B-" : s >= 63 ? "C+" : s >= 58 ? "C" : s >= 53 ? "C-" : s >= 48 ? "D+" : s >= 43 ? "D" : s >= 38 ? "D-" : "F";
+          const gColor = (s: number) => s >= 73 ? "#10b981" : s >= 53 ? "#f59e0b" : s >= 38 ? "#fb923c" : "#f43f5e";
+          const trendArrow = (t: string) => t === "improving" ? "\u2191" : t === "stable" ? "\u2192" : "\u2193";
+          const trendColor = (t: string) => t === "improving" ? "#10b981" : t === "stable" ? "#f59e0b" : "#f43f5e";
+
+          const povertyDesc: Record<string, string> = {
+            baseline: "Without intervention, poverty continues its current trajectory. Automation displaces workers faster than the market absorbs them. By 2035, the poverty rate remains elevated as displaced workers exhaust savings and cycle through low-quality gig work. There is no safety net designed for this scale of disruption.",
+            transition_os: "Transition OS alone bends the curve significantly. Reskilling pathways, job matching, and credential support reduce the time workers spend unemployed. Poverty falls as placement rates climb. However, without income bridging, workers still face painful gaps during retraining that can push vulnerable households below the line.",
+            full_stack: "The Full Stack approach \u2014 Transition OS + Civic Dividends + Virtual Power Plants \u2014 delivers the steepest decline. Dividends cover the income gap during reskilling. VPP revenue supplements household income. Poverty approaches the target rate by 2035, and the trajectory is still improving. This is the only scenario that addresses both the skills gap and the income gap simultaneously.",
+          };
+          const employmentDesc: Record<string, string> = {
+            baseline: "Employment holds relatively steady but masks a hollowing out: full-time secure positions shrink while gig and precarious work expands. The headline rate conceals declining job quality, stagnant wages, and a growing underemployment problem.",
+            transition_os: "Transition OS pushes employment up by matching displaced workers to growth occupations faster. The placement rate climbs, and the quality of matches improves. Workers spend less time idle and more time in upward-mobility paths. The rate converges toward full employment.",
+            full_stack: "Full Stack employment is the strongest. Income bridging means workers can afford longer, more effective retraining rather than grabbing the first available job. This leads to better matches, higher retention, and a compounding effect as well-placed workers contribute more to the tax base that funds the system.",
+          };
+          const overviewSummary: Record<string, string> = {
+            baseline: "Under the no-intervention baseline, the workforce transition unfolds chaotically. Automation displaces millions while reskilling infrastructure remains inadequate. Poverty stays elevated, placement is slow, and the human cost of an unmanaged transition is measured in shattered livelihoods, broken communities, and deepening inequality. This is the default future unless we choose differently.",
+            transition_os: "Transition OS alone is transformative but incomplete. Reskilling pathways, credential programs, and intelligent job matching dramatically reduce the time and friction of career transitions. Poverty falls, employment improves, and workers gain agency. But without income support during the gap, the most vulnerable still struggle. It\u2019s a powerful engine missing its fuel.",
+            full_stack: "The Full Stack scenario demonstrates what a coordinated response looks like. Transition OS provides the infrastructure. Civic Dividends provide the safety net. VPP revenue provides the sustainability. Together, they create a virtuous cycle: workers can afford to retrain properly, better training leads to better placements, better placements generate tax revenue that funds the next cohort. Poverty approaches its floor. Employment reaches its ceiling. This is achievable with current technology and realistic funding levels.",
+          };
+
+          return (
           <section>
-            <Heading icon={"\u{1F4CA}"} title="Dashboard Overview" sub="Key workforce metrics at a glance" />
+            <Heading icon={"\u{1F4CA}"} title="Dashboard Overview" sub="Workforce transition scores, scenario projections, and key metrics" />
+
+            {/* ── Transition Score ── */}
+            <div className="glass-card p-6 mb-8" style={{ borderTop: `3px solid ${gColor(overallScore)}` }}>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-5">
+                <div className="relative w-24 h-24 flex-shrink-0 mx-auto sm:mx-0">
+                  <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                    <circle cx="50" cy="50" r="42" fill="none" stroke={gColor(overallScore)} strokeWidth="8" strokeLinecap="round" strokeDasharray={`${overallScore * 2.64} 264`} />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-xl font-bold" style={{ color: gColor(overallScore), fontFamily: "'Space Grotesk',sans-serif" }}>{letterGrade(overallScore)}</span>
+                    <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>{overallScore}/100</span>
+                  </div>
+                </div>
+                <div className="flex-1 text-center sm:text-left">
+                  <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Today&apos;s Transition Score</h3>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>Workforce readiness for the AI automation wave. Employment quality, reskilling capacity, income security, and equity measured against what&apos;s needed.</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {transScores.map(ts => (
+                  <div key={ts.domain} className="glass-card p-3 text-center">
+                    <span className="text-lg">{ts.icon}</span>
+                    <p className="text-[10px] font-semibold mt-1" style={{ color: "var(--text)" }}>{ts.domain}</p>
+                    <div className="flex items-center justify-center gap-1 mt-1">
+                      <span className="text-lg font-bold" style={{ color: gColor(ts.score), fontFamily: "'Space Grotesk',sans-serif" }}>{letterGrade(ts.score)}</span>
+                      <span className="text-sm font-bold" style={{ color: trendColor(ts.trend) }}>{trendArrow(ts.trend)}</span>
+                    </div>
+                    <p className="text-[9px] mt-1 leading-tight" style={{ color: "var(--text-muted)" }}>{ts.note}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Scenario selector */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+              {data.cohort.map(c => (
+                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-4 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
+                  <p className="text-xs font-semibold mb-1" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</p>
+                  <div className="grid grid-cols-2 gap-2 text-[10px]">
+                    <div><span style={{ color: "var(--text-faint)" }}>Poverty:</span> <span className="font-mono">{c.final.poverty_rate}%</span></div>
+                    <div><span style={{ color: "var(--text-faint)" }}>Placement:</span> <span className="font-mono">{c.final.placement_rate}%</span></div>
+                    <div><span style={{ color: "var(--text-faint)" }}>Employment:</span> <span className="font-mono">{c.final.employment_rate}%</span></div>
+                    <div><span style={{ color: "var(--text-faint)" }}>Reskill:</span> <span className="font-mono">{c.final.median_reskill_months} mo</span></div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
               <Stat label="Occupations" value={`${occupations.length}`} color="var(--sky)" />
               <Stat label="Workers covered" value={fmtK(totalWorkers)} sub="across all occupations" color="var(--emerald)" />
               <Stat label="At-risk" value={`${atRiskCount}`} sub={`${growthCount} growth targets`} color="var(--rose)" />
               <Stat label="Avg automation risk" value={pct(avgRisk * 100)} color="var(--amber)" />
             </div>
-            <div className="glass-card p-6 mb-8">
-              <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text)" }}>2035 Scenario Comparison</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {data.cohort.map(sc => (
-                  <div key={sc.scenario} className="glass-card p-4" style={{ borderLeft: `3px solid ${SC_COLORS[sc.scenario]}` }}>
-                    <p className="text-xs font-medium mb-3" style={{ color: SC_COLORS[sc.scenario] }}>{SC_LABELS[sc.scenario]}</p>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between"><span style={{ color: "var(--text-muted)" }}>Poverty</span><span className="font-mono">{sc.final.poverty_rate}%</span></div>
-                      <div className="flex justify-between"><span style={{ color: "var(--text-muted)" }}>Reskill time</span><span className="font-mono">{sc.final.median_reskill_months} mo</span></div>
-                      <div className="flex justify-between"><span style={{ color: "var(--text-muted)" }}>Placement</span><span className="font-mono">{sc.final.placement_rate}%</span></div>
-                      <div className="flex justify-between"><span style={{ color: "var(--text-muted)" }}>Employment</span><span className="font-mono">{sc.final.employment_rate}%</span></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="glass-card p-6">
+
+            {/* Poverty trajectory with scenario-aware description */}
+            <div className="glass-card p-6 mb-6">
               <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Poverty Rate Trajectory</h3>
-              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>Three scenarios over 10 years</p>
-              <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={(() => { const yrs = data.cohort[0]?.years ?? []; return yrs.map((yr, i) => { const row: any = { year: yr }; for (const sc of data.cohort) row[sc.scenario] = sc.trajectory[i]?.poverty_rate ?? 0; return row; }); })()}>
+              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>Three scenarios, 2026\u20132035 &mdash; highlighting <strong style={{ color: scColor }}>{SC_LABELS[activeScenario]}</strong></p>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={(() => { const yrs = data.cohort[0]?.years ?? []; return yrs.map((yr, i) => { const row: any = { year: yr }; for (const c of data.cohort) row[c.scenario] = c.trajectory[i]?.poverty_rate ?? 0; return row; }); })()}>
                   <defs>
-                    {Object.entries(SC_COLORS).map(([k, c]) => (<linearGradient key={k} id={`g-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity={0.3} /><stop offset="100%" stopColor={c} stopOpacity={0.02} /></linearGradient>))}
+                    {Object.entries(SC_COLORS).map(([k, c]) => (<linearGradient key={k} id={`g-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity={activeScenario === k ? 0.3 : 0.1} /><stop offset="100%" stopColor={c} stopOpacity={0.02} /></linearGradient>))}
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} domain={[0, 20]} />
                   <Tooltip content={<ChartTip />} />
-                  {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#g-${k})`} strokeWidth={2} name={SC_LABELS[k]} />))}
+                  {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#g-${k})`} strokeWidth={activeScenario === k ? 3 : 1.5} strokeOpacity={activeScenario === k ? 1 : 0.4} name={SC_LABELS[k]} />))}
                 </AreaChart>
               </ResponsiveContainer>
+              <p className="text-xs leading-relaxed mt-4" style={{ color: "var(--text-muted)" }}>{povertyDesc[activeScenario]}</p>
+            </div>
+
+            {/* Employment trajectory */}
+            <div className="glass-card p-6 mb-6">
+              <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>Employment Rate Trajectory</h3>
+              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>Three scenarios, 2026\u20132035</p>
+              <ResponsiveContainer width="100%" height={280}>
+                <AreaChart data={(() => { const yrs = data.cohort[0]?.years ?? []; return yrs.map((yr, i) => { const row: any = { year: yr }; for (const c of data.cohort) row[c.scenario] = c.trajectory[i]?.employment_rate ?? 0; return row; }); })()}>
+                  <defs>
+                    {Object.entries(SC_COLORS).map(([k, c]) => (<linearGradient key={k} id={`ge-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity={activeScenario === k ? 0.3 : 0.1} /><stop offset="100%" stopColor={c} stopOpacity={0.02} /></linearGradient>))}
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
+                  <Tooltip content={<ChartTip />} />
+                  {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#ge-${k})`} strokeWidth={activeScenario === k ? 3 : 1.5} strokeOpacity={activeScenario === k ? 1 : 0.4} name={SC_LABELS[k]} />))}
+                </AreaChart>
+              </ResponsiveContainer>
+              <p className="text-xs leading-relaxed mt-4" style={{ color: "var(--text-muted)" }}>{employmentDesc[activeScenario]}</p>
+            </div>
+
+            {/* Overview summary */}
+            <div className="glass-card p-6" style={{ borderLeft: `3px solid ${scColor}` }}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: scColor, fontFamily: "'Space Grotesk',sans-serif" }}>
+                The Workforce in 2035: {SC_LABELS[activeScenario]}
+              </h3>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>{overviewSummary[activeScenario]}</p>
             </div>
           </section>
-        )}
+          );
+        })()}
 
         {/* ═══ OCCUPATION EXPLORER ═══ */}
         {tab === "explorer" && (
@@ -409,9 +506,21 @@ export default function Home() {
         )}
 
         {/* ═══ COHORT PROJECTIONS ═══ */}
-        {tab === "cohort" && (
+        {tab === "cohort" && (() => {
+          const scColor = SC_COLORS[activeScenario] || "#64748b";
+          return (
           <section>
             <Heading icon={"\u{1F4C8}"} title="Cohort Projections" sub="10-year KPI trajectories across three policy scenarios" />
+
+            {/* Scenario selector */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              {data.cohort.map(c => (
+                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-3 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
+                  <p className="text-xs font-semibold" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</p>
+                </button>
+              ))}
+            </div>
+
             <div className="flex flex-wrap gap-2 mb-6">
               {Object.entries(METRIC_META).map(([k, m]) => (
                 <button key={k} onClick={() => setCohortMetric(k)} className={`tab-btn ${cohortMetric === k ? "tab-btn-active" : ""}`}>{m.label}</button>
@@ -419,16 +528,16 @@ export default function Home() {
             </div>
             <div className="glass-card p-6 mb-6">
               <h3 className="text-sm font-semibold mb-1" style={{ color: "var(--text)" }}>{METRIC_META[cohortMetric]?.label}</h3>
-              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>{METRIC_META[cohortMetric]?.better === "lower" ? "Lower is better" : "Higher is better"}</p>
+              <p className="text-xs mb-4" style={{ color: "var(--text-faint)" }}>{METRIC_META[cohortMetric]?.better === "lower" ? "Lower is better" : "Higher is better"} &mdash; highlighting <strong style={{ color: scColor }}>{SC_LABELS[activeScenario]}</strong></p>
               <ResponsiveContainer width="100%" height={320}>
                 <AreaChart data={cohortData}>
-                  <defs>{Object.entries(SC_COLORS).map(([k, c]) => (<linearGradient key={k} id={`cg-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity={0.3} /><stop offset="100%" stopColor={c} stopOpacity={0.02} /></linearGradient>))}</defs>
+                  <defs>{Object.entries(SC_COLORS).map(([k, c]) => (<linearGradient key={k} id={`cg-${k}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={c} stopOpacity={activeScenario === k ? 0.3 : 0.08} /><stop offset="100%" stopColor={c} stopOpacity={0.02} /></linearGradient>))}</defs>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="year" tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
                   <Tooltip content={<ChartTip />} />
                   <Legend wrapperStyle={{ fontSize: 11, color: "#94a3b8" }} />
-                  {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#cg-${k})`} strokeWidth={2} name={SC_LABELS[k]} />))}
+                  {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#cg-${k})`} strokeWidth={activeScenario === k ? 3 : 1.5} strokeOpacity={activeScenario === k ? 1 : 0.35} name={SC_LABELS[k]} />))}
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -442,7 +551,7 @@ export default function Home() {
             {cohortSnapshot && (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {Object.entries(cohortSnapshot).map(([scenario, state]) => (
-                  <div key={scenario} className="glass-card p-4" style={{ borderTop: `3px solid ${SC_COLORS[scenario]}` }}>
+                  <div key={scenario} className={`glass-card p-4 transition-all ${activeScenario === scenario ? "ring-2" : ""}`} style={{ borderTop: `3px solid ${SC_COLORS[scenario]}`, ...(activeScenario === scenario ? { boxShadow: `0 0 20px ${SC_COLORS[scenario]}11` } : {}) }}>
                     <p className="text-xs font-medium mb-3" style={{ color: SC_COLORS[scenario] }}>{SC_LABELS[scenario]} &mdash; {cohortYear}</p>
                     <div className="space-y-1.5 text-xs">
                       {Object.entries(METRIC_META).map(([k, m]) => (
@@ -457,7 +566,8 @@ export default function Home() {
               </div>
             )}
           </section>
-        )}
+          );
+        })()}
 
         {/* ═══ PHASES ═══ */}
         {tab === "phases" && (
