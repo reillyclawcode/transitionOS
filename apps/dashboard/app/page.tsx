@@ -63,6 +63,12 @@ const SC_LABELS: Record<string, string> = {
   full_stack: "Full Stack (OS + Dividends + VPP)",
 };
 const SC_COLORS: Record<string, string> = { baseline: "#64748b", transition_os: "#38bdf8", full_stack: "#34d399" };
+const SC_ICONS: Record<string, string> = { baseline: "\u{1F6A8}", transition_os: "\u{1F6E0}\uFE0F", full_stack: "\u{1F31F}" };
+const SC_DESCS: Record<string, string> = {
+  baseline: "No new programs. Current market dynamics continue. Automation displaces workers without coordinated reskilling or income support.",
+  transition_os: "Reskilling pathways, job matching, and credential programs deployed. Workers gain tools but no income bridge during transition.",
+  full_stack: "Full deployment: Transition OS + Civic Dividends + Virtual Power Plants. Both the skills gap and the income gap are addressed simultaneously.",
+};
 
 const METRIC_META: Record<string, { label: string; unit: string; color: string; better: string }> = {
   poverty_rate:           { label: "Poverty Rate",         unit: "%",       color: "#fb7185", better: "lower" },
@@ -295,8 +301,12 @@ export default function Home() {
             {/* Scenario selector */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
               {data.cohort.map(c => (
-                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-4 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
-                  <p className="text-xs font-semibold mb-1" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</p>
+                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-5 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{SC_ICONS[c.scenario]}</span>
+                    <h4 className="text-sm font-semibold" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</h4>
+                  </div>
+                  <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>{SC_DESCS[c.scenario]}</p>
                   <div className="grid grid-cols-2 gap-2 text-[10px]">
                     <div><span style={{ color: "var(--text-faint)" }}>Poverty:</span> <span className="font-mono">{c.final.poverty_rate}%</span></div>
                     <div><span style={{ color: "var(--text-faint)" }}>Placement:</span> <span className="font-mono">{c.final.placement_rate}%</span></div>
@@ -508,6 +518,56 @@ export default function Home() {
         {/* ═══ COHORT PROJECTIONS ═══ */}
         {tab === "cohort" && (() => {
           const scColor = SC_COLORS[activeScenario] || "#64748b";
+
+          const metricDesc: Record<string, Record<string, string>> = {
+            poverty_rate: {
+              baseline: "Without intervention, poverty holds at structurally elevated levels. Automation displaces low-wage workers faster than the market re-absorbs them. By 2035, displaced households have cycled through savings, gig work, and public assistance without a durable path out. The rate barely moves because nothing in the system is designed to move it.",
+              transition_os: "Transition OS bends the poverty curve meaningfully. Workers displaced by automation are matched to growth occupations faster, reducing the duration of income loss. Credential support and reskilling pathways cut the time between job loss and re-employment. However, without income bridging, the most vulnerable households still dip below the poverty line during retraining.",
+              full_stack: "The Full Stack scenario delivers the steepest poverty decline. Civic Dividends cover the income gap during reskilling, preventing the downward spiral that poverty creates. VPP revenue supplements household income. By 2035, poverty approaches its structural floor and the trajectory is still improving. This is the only scenario that breaks the link between job displacement and destitution.",
+            },
+            median_reskill_months: {
+              baseline: "Reskilling time stays long and painful. Without coordinated pathways, displaced workers spend months navigating fragmented training options, outdated curricula, and opaque credentialing. Many give up and accept lower-quality work. The median masks a long tail of workers trapped in multi-year transitions or permanent downgrading.",
+              transition_os: "Transition OS compresses reskilling dramatically. AI-powered skill gap analysis, curated learning paths, and employer-aligned credentials cut the median from months of wandering to a structured sprint. Workers know exactly what to learn, where to learn it, and what credential employers will recognize. Time-to-placement drops sharply.",
+              full_stack: "Full Stack reskilling is the fastest and most effective. Income bridging means workers can commit to longer, higher-quality programs without financial panic forcing them into the first available option. Better matches lead to higher retention, which feeds positive data back into the matching algorithm. The system improves itself with every cohort.",
+            },
+            placement_rate: {
+              baseline: "Placement stays disappointing. Without a matching system, displaced workers apply broadly, get rejected frequently, and settle for mismatched roles. Employers struggle to identify qualified career-changers. The placement rate reflects a market where supply and demand exist but can not find each other efficiently.",
+              transition_os: "Transition OS transforms placement. The matching engine connects displaced workers to specific openings based on transferable skills, training completion, and employer needs. Success rates climb as the algorithm learns from each cohort. Employers gain confidence in non-traditional candidates because credentials are verified and skill gaps are closed.",
+              full_stack: "Full Stack placement is the strongest. Workers who complete reskilling with income support are less stressed, better trained, and more selective \u2014 leading to better matches and higher retention. Employers see lower turnover, which reinforces their willingness to hire through the system. The placement rate compounds upward as the flywheel spins.",
+            },
+            stipend_utilization: {
+              baseline: "Stipend infrastructure does not exist in the baseline. Workers rely on unemployment insurance (if eligible), personal savings, and informal support networks. Most displaced workers face a funding gap between job loss and re-employment that no existing program is designed to fill.",
+              transition_os: "Transition OS introduces targeted stipends for reskilling participants, but utilization depends on awareness, eligibility, and administrative friction. Take-up grows as the program matures and word-of-mouth spreads. However, stipend levels may not fully cover living costs, leaving some workers unable to complete training.",
+              full_stack: "Full Stack stipend utilization is near-universal. Civic Dividends provide a baseline income floor that every transitioning worker can access. Combined with reskilling stipends, the system eliminates the financial barrier to participation. Workers who might have dropped out due to rent or childcare costs can now complete their programs.",
+            },
+            household_liquidity: {
+              baseline: "Household liquidity erodes steadily. Without income support during transitions, families burn through savings and take on debt. By 2035, displaced households have materially less financial buffer than they started with. One unexpected expense \u2014 a medical bill, a car repair \u2014 can trigger a cascade into poverty.",
+              transition_os: "Liquidity stabilizes for those who successfully reskill. Faster placement means shorter periods of income loss, preserving more household savings. However, the transition period itself still drains liquidity for many, particularly those in longer retraining programs or with dependents.",
+              full_stack: "Full Stack households maintain and grow liquidity. Civic Dividends prevent savings drawdown during transitions. VPP income adds a supplementary revenue stream. Post-transition salaries are higher due to better matching. By 2035, the average transitioning household has more financial resilience than when they started \u2014 a genuinely transformative outcome.",
+            },
+            employment_rate: {
+              baseline: "The headline employment rate holds relatively steady, but masks a hollowing out. Full-time positions with benefits shrink while gig work, part-time roles, and precarious contracts expand. Underemployment rises even as official unemployment stays moderate. The rate is a misleading indicator of workforce health.",
+              transition_os: "Transition OS pushes quality employment up. Workers displaced from automatable roles are matched to growth occupations \u2014 not just any job, but occupations with higher stability, better pay, and lower automation risk. The employment rate converges toward full employment and the quality of that employment improves measurably.",
+              full_stack: "Full Stack employment is the strongest and highest quality. Income bridging means workers can afford to wait for good matches rather than grabbing the first available position. This leads to higher retention, higher satisfaction, and a compounding effect as well-placed workers contribute more productively to the economy that funds the next cohort.",
+            },
+            emissions_intensity: {
+              baseline: "Emissions intensity declines slowly along its current trajectory, driven by market forces and existing regulation. Progress is insufficient to meet climate targets. Without coordinated workforce transition, clean energy deployment is bottlenecked by skilled labor shortages.",
+              transition_os: "Transition OS accelerates emissions reduction indirectly. By reskilling workers into clean energy, energy efficiency, and climate tech roles, it removes the labor bottleneck on decarbonization. The emissions intensity curve bends faster as the workforce catches up with the technology.",
+              full_stack: "Full Stack emissions intensity falls the fastest. Virtual Power Plants directly reduce grid emissions while creating revenue. The trained workforce deploys clean infrastructure faster. The Civic Dividend system incentivizes participation in climate-positive work. This scenario achieves meaningful decarbonization as a side effect of solving the workforce crisis.",
+            },
+            charter_audit_coverage: {
+              baseline: "Audit coverage remains minimal. Without dedicated governance infrastructure, AI deployment proceeds with limited oversight. Algorithmic decisions affecting employment, benefits, and opportunity go unexamined. Public trust erodes as opaque systems make consequential choices.",
+              transition_os: "Transition OS includes basic audit mechanisms for its own algorithmic decisions \u2014 matching, credentialing, stipend allocation. This creates a template for broader coverage, but audit infrastructure remains limited to program participants and does not extend to private-sector AI deployment.",
+              full_stack: "Full Stack audit coverage is comprehensive. Dedicated governance funding supports expanding charter audits beyond the program to cover AI systems affecting employment, lending, and public services. By 2035, a significant share of consequential algorithmic decisions are subject to regular, independent audit \u2014 a governance achievement with spillover benefits across society.",
+            },
+          };
+
+          const cohortSummary: Record<string, string> = {
+            baseline: "The baseline cohort projection reveals what happens when automation accelerates without a coordinated workforce response. Every metric either stagnates or deteriorates. Poverty holds, reskilling is slow and painful, placement is inefficient, and household liquidity erodes. The numbers are not catastrophic in any single year \u2014 the damage is cumulative, compounding quietly until communities realize they have been hollowed out. This is not a crisis that announces itself; it is a slow erosion of economic security for millions of working families.",
+            transition_os: "Transition OS alone bends every curve in the right direction. Reskilling is faster, placement is better, and poverty falls. The system works. But it is incomplete \u2014 workers still face a painful income gap during transition, and the most vulnerable households cannot afford to participate fully. It is a powerful engine missing its fuel. The projections show clear improvement over baseline but leave significant human cost on the table.",
+            full_stack: "The Full Stack cohort projection demonstrates what a coordinated, comprehensive response achieves. Every metric improves dramatically. Poverty approaches its structural floor. Reskilling is fast and effective. Placement rates are high and improving. Household liquidity grows. Emissions fall. Audit coverage expands. The system creates a virtuous cycle: income support enables better training, better training enables better placement, better placement generates the tax revenue that funds the next cohort. This is not utopian \u2014 it is achievable with current technology, realistic funding, and political will. The only question is whether we choose it.",
+          };
+
           return (
           <section>
             <Heading icon={"\u{1F4C8}"} title="Cohort Projections" sub="10-year KPI trajectories across three policy scenarios" />
@@ -515,8 +575,12 @@ export default function Home() {
             {/* Scenario selector */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
               {data.cohort.map(c => (
-                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-3 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
-                  <p className="text-xs font-semibold" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</p>
+                <button key={c.scenario} onClick={() => setActiveScenario(c.scenario)} className={`glass-card p-5 text-left w-full transition-all hover:border-white/20 ${activeScenario === c.scenario ? "ring-2" : ""}`} style={activeScenario === c.scenario ? { borderColor: `${SC_COLORS[c.scenario]}55`, boxShadow: `0 0 20px ${SC_COLORS[c.scenario]}11` } : {}}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-2xl">{SC_ICONS[c.scenario]}</span>
+                    <h4 className="text-sm font-semibold" style={{ color: SC_COLORS[c.scenario] }}>{SC_LABELS[c.scenario]}</h4>
+                  </div>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>{SC_DESCS[c.scenario]}</p>
                 </button>
               ))}
             </div>
@@ -540,6 +604,7 @@ export default function Home() {
                   {Object.entries(SC_COLORS).map(([k, c]) => (<Area key={k} type="monotone" dataKey={k} stroke={c} fill={`url(#cg-${k})`} strokeWidth={activeScenario === k ? 3 : 1.5} strokeOpacity={activeScenario === k ? 1 : 0.35} name={SC_LABELS[k]} />))}
                 </AreaChart>
               </ResponsiveContainer>
+              <p className="text-xs leading-relaxed mt-4" style={{ color: "var(--text-muted)" }}>{metricDesc[cohortMetric]?.[activeScenario]}</p>
             </div>
             <div className="glass-card p-5 mb-6">
               <div className="flex items-center justify-between mb-3">
@@ -549,7 +614,7 @@ export default function Home() {
               <input type="range" min={2026} max={2035} value={cohortYear} onChange={e => setCohortYear(Number(e.target.value))} className="timeline-slider" />
             </div>
             {cohortSnapshot && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 {Object.entries(cohortSnapshot).map(([scenario, state]) => (
                   <div key={scenario} className={`glass-card p-4 transition-all ${activeScenario === scenario ? "ring-2" : ""}`} style={{ borderTop: `3px solid ${SC_COLORS[scenario]}`, ...(activeScenario === scenario ? { boxShadow: `0 0 20px ${SC_COLORS[scenario]}11` } : {}) }}>
                     <p className="text-xs font-medium mb-3" style={{ color: SC_COLORS[scenario] }}>{SC_LABELS[scenario]} &mdash; {cohortYear}</p>
@@ -565,6 +630,14 @@ export default function Home() {
                 ))}
               </div>
             )}
+
+            {/* Comprehensive summary */}
+            <div className="glass-card p-6" style={{ borderLeft: `3px solid ${scColor}` }}>
+              <h3 className="text-sm font-semibold mb-3" style={{ color: scColor, fontFamily: "'Space Grotesk',sans-serif" }}>
+                Cohort Outlook 2035: {SC_LABELS[activeScenario]}
+              </h3>
+              <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>{cohortSummary[activeScenario]}</p>
+            </div>
           </section>
           );
         })()}
